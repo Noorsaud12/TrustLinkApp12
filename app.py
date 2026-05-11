@@ -9,7 +9,7 @@ model = pickle.load(open("model.pkl", "rb"))
 # تحميل البيانات
 real_df = pd.read_csv("real_users.csv")
 fake_df = pd.read_csv("fake_users.csv")
-
+extra_df = pd.read_csv("fake_social_media.csv")
 # إضافة label
 real_df["label"] = 1
 fake_df["label"] = 0
@@ -50,19 +50,29 @@ if st.button("Search"):
         else:
             st.error("❌ FAKE USER")
 
-        # شارت
-        st.subheader("📊 User Statistics")
 
-        numeric_df = user_data.select_dtypes(include=['int64', 'float64'])
 
-        if numeric_df.shape[1] > 0:
 
-            data = numeric_df.iloc[0]
+        # الأعمدة المطلوبة
+        features = ["followers_count",
+    "friends_count",
+    "statuses_count",
+    "favourites_count"]
+
+        # التأكد أنها موجودة
+        available_features = [f for f in features if f in user_data.columns]
+
+        if len(available_features) > 0:
+
+            values = user_data[available_features].iloc[0]
 
             fig, ax = plt.subplots()
 
-            ax.bar(data.index[:5], data.values[:5])
+            ax.bar(available_features, values)
 
-            plt.xticks(rotation=45)
+            ax.set_title("User Statistics")
 
             st.pyplot(fig)
+
+        else:
+            st.warning("Required columns not found")
