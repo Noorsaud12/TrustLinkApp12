@@ -9,7 +9,7 @@ model = pickle.load(open("model.pkl", "rb"))
 # تحميل البيانات
 real_df = pd.read_csv("real_users.csv")
 fake_df = pd.read_csv("fake_users.csv")
-extra_df = pd.read_csv("fake_social_media.csv")
+
 # إضافة label
 real_df["label"] = 1
 fake_df["label"] = 0
