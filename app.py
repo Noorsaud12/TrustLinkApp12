@@ -17,7 +17,7 @@ fake_df["label"] = 0
 # دمج البيانات
 df = pd.concat([real_df, fake_df], ignore_index=True)
 
-# حذف id
+# حذف id إذا موجود
 df = df.drop(columns=["id"], errors="ignore")
 
 # واجهة المشروع
@@ -28,40 +28,45 @@ username = st.text_input("Enter Username")
 
 if st.button("Search"):
 
-    user_data = df[df["name"].astype(str).str.lower() == username.strip().lower()]
+    # البحث عن المستخدم
+    user_data = df[
+        df["name"].astype(str).str.lower()
+        == username.strip().lower()
+    ]
 
+    # إذا المستخدم غير موجود
     if user_data.empty:
         st.error("❌ User not found")
 
     else:
         st.success("✅ User found")
 
-        # تجهيز البيانات
-        X = user_data.drop("label", axis=1)
+        # الأعمدة المستخدمة بالتدريب
+        features = [
+            "followers_count",
+            "friends_count",
+            "statuses_count",
+            "favourites_count"
+        ]
 
-        for col in X.columns:
-            X[col] = X[col].astype(str).factorize()[0]
+        # تجهيز البيانات
+        X = user_data[features]
 
         # التوقع
         prediction = model.predict(X)
 
+        # النتيجة
         if prediction[0] == 1:
             st.success("✅ REAL USER")
         else:
             st.error("❌ FAKE USER")
 
+        # التأكد من وجود الأعمدة
+        available_features = [
+            f for f in features if f in user_data.columns
+        ]
 
-
-
-        # الأعمدة المطلوبة
-        features = ["followers_count",
-    "friends_count",
-    "statuses_count",
-    "favourites_count"]
-
-        # التأكد أنها موجودة
-        available_features = [f for f in features if f in user_data.columns]
-
+        # الرسم البياني
         if len(available_features) > 0:
 
             values = user_data[available_features].iloc[0]
